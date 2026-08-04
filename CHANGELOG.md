@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 - 2026-08-04
+
+- Enable exponential backoff by default and raise its default maximum to 600 seconds.
+- Retry every 429-limited row until it succeeds, capped at the maximum delay, before advancing to the next batch.
+- Scope scrape and save actions strictly to video-tagger rows so Scrape All cannot trigger Global Search.
+- Wait for an observed loading cycle before counting a row as successfully scraped.
+- Display the settings Save button with normal-weight text.
+
 ## 1.1.0 - 2026-08-04
 
 - Fix settings loading when Cove returns a null settings payload.

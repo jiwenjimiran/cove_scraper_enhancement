@@ -1,7 +1,7 @@
 {
   "id": "io.github.jiwenjimiran.better-scrapers",
   "name": "Better Scrapers",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Rate-limited Scrape All and one-click Save All controls for Cove's video tagger.",
   "author": "jiwenji",
   "url": "https://github.com/jiwenjimiran/cove_scraper_enhancement",
