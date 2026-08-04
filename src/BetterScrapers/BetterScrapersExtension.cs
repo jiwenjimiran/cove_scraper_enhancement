@@ -16,7 +16,7 @@ public sealed class BetterScrapersExtension : IExtension, IUIExtension, IStatefu
 
     public string Id => ExtensionId;
     public string Name => "Better Scrapers";
-    public string Version => "1.0.0";
+    public string Version => "1.0.1";
     public string? Description => "Rate-limited Scrape All and one-click Save All controls for Cove's video tagger.";
     public string? Author => "jiwenji";
     public string? Url => "https://github.com/jiwenjimiran/cove_scraper_enhancement";
