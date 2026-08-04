@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <CovePluginsVersion Condition="'$(CovePluginsVersion)' == ''">1.0.0</CovePluginsVersion>
+    <UseLocalCovePlugins Condition="'$(UseLocalCovePlugins)' == '' and Exists('$(MSBuildThisFileDirectory)..\cove\src\Cove.Plugins\Cove.Plugins.csproj')">true</UseLocalCovePlugins>
+    <UseLocalCovePlugins Condition="'$(UseLocalCovePlugins)' == ''">false</UseLocalCovePlugins>
+  </PropertyGroup>
+</Project>

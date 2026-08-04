@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+frontend/node_modules/
+artifacts/
+src/BetterScrapers/dist/
+
