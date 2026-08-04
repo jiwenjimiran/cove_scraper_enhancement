@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 - 2026-08-04
+
+- Reduce Save All to the same 24px height as Scrape All.
+
 ## 1.0.1 - 2026-08-04
 
 - Match Cove's native Scrape All and Save button utility classes.
