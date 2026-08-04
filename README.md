@@ -6,6 +6,16 @@ A Cove extension that improves the video tagger batch workflow:
 - **Save All** sequentially saves every currently selected scraper match.
 - Both settings default to `5`: five simultaneous scrapes and a five-second pause between batches.
 
+## Screenshots
+
+### Video tagger controls
+
+![Better Scrapers Scrape All and Save All controls](docs/images/tagger-controls.jpg)
+
+### Extension settings
+
+![Better Scrapers extension settings](docs/images/better-scrapers-settings.jpg)
+
 ## Install
 
 Extract the release ZIP into:
