@@ -21,26 +21,32 @@ export function createBetterScrapersController({document,location,MutationObserv
   }
   function cleanup(){document.getElementById(CONTROLS_ID)?.remove();for(const button of document.querySelectorAll(`[${ORIGINAL_ATTRIBUTE}]`)){button.style.removeProperty("display");button.removeAttribute(ORIGINAL_ATTRIBUTE);}}
   async function runScrapeAll(controls){
-    if(running){cancelled=true;setStatus(controls,"Stopping after current batch…");return;}running=true;cancelled=false;setBusy(controls,true,"scrape");let completed=0,failures=0;
-    try{const settings=normalizeSettings(await safeSettings(settingsProvider));const tagger=findVideoTagger(document);const buttons=tagger?findSearchButtons(tagger.list):[];const batches=chunk(buttons,settings.batchSize);
-      for(let index=0;index<batches.length&&!cancelled;index++){const batch=batches[index];setStatus(controls,`Scraping ${completed+1}–${completed+batch.length} of ${buttons.length}…`);failures+=(await scrapeBatch(batch,settings,controls)).failures;completed+=batch.length;if(index<batches.length-1&&!cancelled&&settings.pauseSeconds>0){setStatus(controls,`Scraped ${completed} of ${buttons.length}. Pausing ${settings.pauseSeconds}s…`);await delay(settings.pauseSeconds*1000);}}
-      setStatus(controls,cancelled?`Stopped after ${completed} of ${buttons.length}.`:`Scrape complete: ${completed-failures} succeeded${failures?`, ${failures} failed`:""}.`);
+    if(running){cancelled=true;setStatus(controls,"Stopping after current batch…");return;}running=true;cancelled=false;setBusy(controls,true,"scrape");let succeeded=0,failures=0,saved=0,saveFailures=0;
+    try{const settings=normalizeSettings(await safeSettings(settingsProvider));const tagger=findVideoTagger(document);const buttons=tagger?findSearchButtons(tagger.list):[];let cursor=0,retries=[],backoff=0,waitBeforeNext=0,waitMessage="";
+      while((cursor<buttons.length||retries.length)&&!cancelled){
+        if(waitBeforeNext>0){setStatus(controls,waitMessage);await delay(waitBeforeNext*1000);if(cancelled)break;}
+        const batch=retries.splice(0,settings.batchSize);
+        while(batch.length<settings.batchSize&&cursor<buttons.length)batch.push(buttons[cursor++]);
+        setStatus(controls,`Scraping ${batch.length} item${batch.length===1?"":"s"}; ${succeeded+failures} of ${buttons.length} complete…`);
+        const outcomes=await Promise.allSettled(batch.map(button=>scrapeAndMaybeSave(button,settings)));
+        const rateLimited=[];
+        outcomes.forEach((outcome,index)=>{if(outcome.status==="fulfilled"){succeeded++;if(outcome.value.saved)saved++;if(outcome.value.saveFailed)saveFailures++;}else if(settings.useBackoff&&isRateLimited(outcome.reason)){rateLimited.push(batch[index]);}else failures++;});
+        retries.push(...rateLimited);
+        const remaining=buttons.length-cursor;
+        if(rateLimited.length){backoff=backoff===0?Math.min(settings.maximumBackoff,Math.max(1,settings.pauseSeconds*2)):Math.min(settings.maximumBackoff,backoff*2);const refill=Math.min(settings.batchSize-rateLimited.length,remaining);waitBeforeNext=backoff;waitMessage=`429 received. Retrying ${rateLimited.length}${refill?` with ${refill} new`:""} after ${backoff}s backoff…`;}
+        else{backoff=0;waitBeforeNext=(remaining||retries.length)?settings.pauseSeconds:0;waitMessage=`Scraped ${succeeded+failures} of ${buttons.length}. Pausing ${settings.pauseSeconds}s…`;}
+      }
+      const saveSummary=settings.automaticallySaveAfterScrape?` ${saved} saved${saveFailures?`, ${saveFailures} save failed`:""}.`:"";
+      setStatus(controls,cancelled?`Stopped after ${succeeded+failures} of ${buttons.length}.`:`Scrape complete: ${succeeded} succeeded${failures?`, ${failures} failed`:""}.${saveSummary}`);
     }catch(reason){setStatus(controls,`Scrape failed: ${reason?.message||reason}`);}finally{running=false;cancelled=false;setBusy(controls,false);}
   }
-  async function scrapeBatch(batch,settings,controls){
-    let pending=batch,failures=0,lastBackoff=0;
-    while(pending.length&&!cancelled){
-      const outcomes=await Promise.allSettled(pending.map(clickAndWaitForSearch));
-      const rateLimited=[];
-      outcomes.forEach((outcome,index)=>{if(outcome.status!=="rejected")return;if(settings.useBackoff&&isRateLimited(outcome.reason))rateLimited.push(pending[index]);else failures++;});
-      if(rateLimited.length===0)break;
-      const nextBackoff=lastBackoff===0?Math.min(settings.maximumBackoff,Math.max(1,settings.pauseSeconds*2)):Math.min(settings.maximumBackoff,lastBackoff*2);
-      setStatus(controls,`429 received. Retrying ${rateLimited.length} after ${nextBackoff}s backoff…`);
-      await delay(nextBackoff*1000);
-      lastBackoff=nextBackoff;
-      pending=rateLimited;
-    }
-    return{failures};
+  async function scrapeAndMaybeSave(button,settings){
+    await clickAndWaitForSearch(button);
+    if(!settings.automaticallySaveAfterScrape)return{saved:false,saveFailed:false};
+    const saveButton=findExactTextButtons(closestRow(button),"Save")[0];
+    if(!saveButton)return{saved:false,saveFailed:false};
+    try{await clickAndWaitForSave(saveButton);return{saved:true,saveFailed:false};}
+    catch{return{saved:false,saveFailed:true};}
   }
   async function runSaveAll(controls){
     if(running)return;running=true;setBusy(controls,true,"save");let saved=0,failures=0;

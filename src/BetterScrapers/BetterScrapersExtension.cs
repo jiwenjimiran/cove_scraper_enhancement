@@ -16,7 +16,7 @@ public sealed class BetterScrapersExtension : IExtension, IUIExtension, IStatefu
 
     public string Id => ExtensionId;
     public string Name => "Better Scrapers";
-    public string Version => "1.1.1";
+    public string Version => "1.2.0";
     public string? Description => "Rate-limited Scrape All and one-click Save All controls for Cove's video tagger.";
     public string? Author => "jiwenji";
     public string? Url => "https://github.com/jiwenjimiran/cove_scraper_enhancement";
@@ -73,6 +73,7 @@ public sealed class BetterScrapersSettings
     public int PauseSeconds { get; set; } = 5;
     public bool UseBackoff { get; set; } = true;
     public int MaximumBackoff { get; set; } = 600;
+    public bool AutomaticallySaveAfterScrape { get; set; }
 
     public static BetterScrapersSettings Normalize(BetterScrapersSettings? value)
     {

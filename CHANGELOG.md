@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 - 2026-08-04
+
+- Refill retry batches with new videos so successful slots do not sit idle during 429 backoff.
+- Keep rate-limited videos in the rolling queue until they scrape successfully.
+- Add an opt-in Automatically save after scrape setting.
+
 ## 1.1.1 - 2026-08-04
 
 - Enable exponential backoff by default and raise its default maximum to 600 seconds.

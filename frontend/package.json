@@ -1,1 +1,1 @@
-{"name":"cove-better-scrapers-ui","private":true,"version":"1.1.1","type":"module","scripts":{"build":"node build.mjs","test":"node --test test/*.test.mjs"},"devDependencies":{"esbuild":"^0.25.8","jsdom":"^26.1.0"}}
+{"name":"cove-better-scrapers-ui","private":true,"version":"1.2.0","type":"module","scripts":{"build":"node build.mjs","test":"node --test test/*.test.mjs"},"devDependencies":{"esbuild":"^0.25.8","jsdom":"^26.1.0"}}
