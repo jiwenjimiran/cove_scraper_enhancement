@@ -1,6 +1,6 @@
-export const DEFAULT_SETTINGS = Object.freeze({ batchSize: 5, pauseSeconds: 5 });
+export const DEFAULT_SETTINGS = Object.freeze({ batchSize: 5, pauseSeconds: 5, useBackoff: false, maximumBackoff: 120 });
 const SETTINGS_URL = "/api/ext/better-scrapers/settings";
-export function normalizeSettings(value = {}) { return { batchSize: clamp(value.batchSize,1,100,5), pauseSeconds: clamp(value.pauseSeconds,0,3600,5) }; }
+export function normalizeSettings(value = {}) { value ||= {}; return { batchSize: clamp(value.batchSize,1,100,5), pauseSeconds: clamp(value.pauseSeconds,0,3600,5), useBackoff: value.useBackoff === true, maximumBackoff: clamp(value.maximumBackoff,1,3600,120) }; }
 export async function loadSettings() { return normalizeSettings(await request(SETTINGS_URL)); }
 export async function saveSettings(value) { return normalizeSettings(await request(SETTINGS_URL,{method:"PUT",body:JSON.stringify(normalizeSettings(value))})); }
 async function request(url, options={}) {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 - 2026-08-04
+
+- Fix settings loading when Cove returns a null settings payload.
+- Add optional exponential retry backoff for HTTP 429 scraper failures.
+- Add a configurable maximum backoff, defaulting to 120 seconds.
+- Match the Duplicate Manager settings-save button.
+
 ## 1.0.2 - 2026-08-04
 
 - Reduce Save All to the same 24px height as Scrape All.

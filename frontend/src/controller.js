@@ -23,16 +23,32 @@ export function createBetterScrapersController({document,location,MutationObserv
   async function runScrapeAll(controls){
     if(running){cancelled=true;setStatus(controls,"Stopping after current batch…");return;}running=true;cancelled=false;setBusy(controls,true,"scrape");let completed=0,failures=0;
     try{const settings=normalizeSettings(await safeSettings(settingsProvider));const buttons=findSearchButtons(document);const batches=chunk(buttons,settings.batchSize);
-      for(let index=0;index<batches.length&&!cancelled;index++){const batch=batches[index];setStatus(controls,`Scraping ${completed+1}–${completed+batch.length} of ${buttons.length}…`);const outcomes=await Promise.allSettled(batch.map(clickAndWaitForSearch));completed+=batch.length;failures+=outcomes.filter(x=>x.status==="rejected").length;if(index<batches.length-1&&!cancelled&&settings.pauseSeconds>0){setStatus(controls,`Scraped ${completed} of ${buttons.length}. Pausing ${settings.pauseSeconds}s…`);await delay(settings.pauseSeconds*1000);}}
+      for(let index=0;index<batches.length&&!cancelled;index++){const batch=batches[index];setStatus(controls,`Scraping ${completed+1}–${completed+batch.length} of ${buttons.length}…`);failures+=(await scrapeBatch(batch,settings,controls)).failures;completed+=batch.length;if(index<batches.length-1&&!cancelled&&settings.pauseSeconds>0){setStatus(controls,`Scraped ${completed} of ${buttons.length}. Pausing ${settings.pauseSeconds}s…`);await delay(settings.pauseSeconds*1000);}}
       setStatus(controls,cancelled?`Stopped after ${completed} of ${buttons.length}.`:`Scrape complete: ${completed-failures} succeeded${failures?`, ${failures} failed`:""}.`);
     }catch(reason){setStatus(controls,`Scrape failed: ${reason?.message||reason}`);}finally{running=false;cancelled=false;setBusy(controls,false);}
+  }
+  async function scrapeBatch(batch,settings,controls){
+    let pending=batch,failures=0,lastBackoff=0;
+    while(pending.length&&!cancelled){
+      const outcomes=await Promise.allSettled(pending.map(clickAndWaitForSearch));
+      const rateLimited=[];
+      outcomes.forEach((outcome,index)=>{if(outcome.status!=="rejected")return;if(settings.useBackoff&&isRateLimited(outcome.reason))rateLimited.push(pending[index]);else failures++;});
+      if(rateLimited.length===0)break;
+      if(lastBackoff>=settings.maximumBackoff){failures+=rateLimited.length;break;}
+      const nextBackoff=lastBackoff===0?Math.min(settings.maximumBackoff,Math.max(1,settings.pauseSeconds*2)):Math.min(settings.maximumBackoff,lastBackoff*2);
+      setStatus(controls,`429 received. Retrying ${rateLimited.length} after ${nextBackoff}s backoff…`);
+      await delay(nextBackoff*1000);
+      lastBackoff=nextBackoff;
+      pending=rateLimited;
+    }
+    return{failures};
   }
   async function runSaveAll(controls){
     if(running)return;running=true;setBusy(controls,true,"save");let saved=0,failures=0;
     try{const buttons=findExactTextButtons(document,"Save");for(const button of buttons){setStatus(controls,`Saving ${saved+failures+1} of ${buttons.length}…`);try{await clickAndWaitForSave(button);saved++;}catch{failures++;}}setStatus(controls,buttons.length?`Save complete: ${saved} saved${failures?`, ${failures} failed`:""}.`:"Nothing is ready to save.");}
     finally{running=false;setBusy(controls,false);}
   }
-  function clickAndWaitForSearch(button){const row=closestRow(button);button.click();return waitUntil(()=>{if(row.querySelector(".text-red-400"))throw new Error("Scrape failed");return !button.disabled;},120000);}
+  function clickAndWaitForSearch(button){const row=closestRow(button);button.click();return waitUntil(()=>{const error=row.querySelector(".text-red-400");if(error)throw new Error(error.textContent.trim()||"Scrape failed");return !button.disabled;},120000);}
   function clickAndWaitForSave(button){const row=closestRow(button);button.click();return waitUntil(()=>/Saved successfully/i.test(row.textContent)||!button.isConnected,30000);}
   return {start,stop,ensureControls,runScrapeAll,runSaveAll};
 }
@@ -41,6 +57,7 @@ function findVideoTagger(document){for(const original of findExactTextButtons(do
 function findSearchButtons(document){return[...document.querySelectorAll("button")].filter(button=>!button.disabled&&button.querySelector("svg.lucide-search"));}
 function findExactTextButtons(document,text){return[...document.querySelectorAll("button")].filter(button=>button.textContent.trim()===text&&!button.disabled);}
 function closestRow(element){return element.closest(".border-b, [data-testid='tagger-row']")||element.parentElement?.parentElement||element.parentElement;}
+export function isRateLimited(reason){return /\b429\b|too many requests/i.test(reason?.message||String(reason||""));}
 async function safeSettings(provider){try{return await provider();}catch{return DEFAULT_SETTINGS;}}
 function waitUntil(predicate,timeout){return new Promise((resolve,reject)=>{const started=Date.now();const check=()=>{try{if(predicate())return resolve();if(Date.now()-started>=timeout)return reject(new Error("Timed out waiting for Cove."));setTimeout(check,100);}catch(reason){reject(reason);}};check();});}
 function setBusy(controls,busy,active){for(const button of controls.querySelectorAll("button"))button.disabled=busy;const selected=active&&controls.querySelector(`[data-action="${active}"]`);if(selected){selected.disabled=false;setButtonLabel(selected,active==="scrape"?"Stop":"Saving…");}if(!busy){setButtonLabel(controls.querySelector('[data-action="scrape"]'),"Scrape All");setButtonLabel(controls.querySelector('[data-action="save"]'),"Save All");}}
