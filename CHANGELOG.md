@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 - 2026-08-05
+
+- Add a Scrape Selected action that appears when one or more video-tagger rows are selected.
+- Apply rolling batches, exponential backoff, and optional automatic saving to selected-only scraping.
+
 ## 1.2.0 - 2026-08-04
 
 - Refill retry batches with new videos so successful slots do not sit idle during 429 backoff.

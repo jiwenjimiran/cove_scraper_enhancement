@@ -3,6 +3,7 @@
 A Cove extension that improves the video tagger batch workflow:
 
 - **Scrape All** processes videos in configurable batches, then pauses before continuing.
+- **Scrape Selected** appears when videos are selected and processes only those rows.
 - **Save All** sequentially saves every currently selected scraper match.
 - Both settings default to `5`: five simultaneous scrapes and a five-second pause between batches.
 
