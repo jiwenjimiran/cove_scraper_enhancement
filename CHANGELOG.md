@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1 - 2026-09-06
+
+- Restore toolbar injection after Cove 1.3 wrapped the native Scrape All control in a strategy-menu container.
+- Require explicit Cove permissions for reading and updating Better Scrapers settings.
+
 ## 1.3.0 - 2026-08-05
 
 - Add a Scrape Selected action that appears when one or more video-tagger rows are selected.

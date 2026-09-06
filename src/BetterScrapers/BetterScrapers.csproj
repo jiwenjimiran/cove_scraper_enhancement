@@ -12,6 +12,9 @@
     <PackageReference Include="Cove.Plugins" Version="$(CovePluginsVersion)"><ExcludeAssets>runtime</ExcludeAssets></PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(UseLocalCovePlugins)' == 'true'">
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\..\cove\src\Cove.Plugins\Cove.Plugins.csproj" Condition="Exists('$(MSBuildThisFileDirectory)..\..\..\cove\src\Cove.Plugins\Cove.Plugins.csproj')"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
+    <ProjectReference Include="$(CoveSourceRoot)\src\Cove.Core\Cove.Core.csproj"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
+    <ProjectReference Include="$(CoveSourceRoot)\src\Cove.Plugins\Cove.Plugins.csproj"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
+    <ProjectReference Include="$(CoveSourceRoot)\src\Cove.Sdk\Cove.Sdk.csproj"><Private>false</Private><ExcludeAssets>runtime</ExcludeAssets></ProjectReference>
   </ItemGroup>
+  <Import Project="$(CoveSourceRoot)\src\Cove.Sdk\buildTransitive\Cove.Sdk.targets" Condition="'$(UseLocalCovePlugins)' == 'true'" />
 </Project>

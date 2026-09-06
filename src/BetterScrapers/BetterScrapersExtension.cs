@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Cove.Plugins;
+using Cove.Sdk;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -16,7 +17,7 @@ public sealed class BetterScrapersExtension : IExtension, IUIExtension, IStatefu
 
     public string Id => ExtensionId;
     public string Name => "Better Scrapers";
-    public string Version => "1.3.0";
+    public string Version => "1.3.1";
     public string? Description => "Rate-limited Scrape All and one-click Save All controls for Cove's video tagger.";
     public string? Author => "jiwenji";
     public string? Url => "https://github.com/jiwenjimiran/cove_scraper_enhancement";
@@ -45,7 +46,8 @@ public sealed class BetterScrapersExtension : IExtension, IUIExtension, IStatefu
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("/api/ext/better-scrapers/settings", async (HttpContext ctx) =>
-            Results.Json(await LoadSettingsAsync(ctx.RequestAborted), JsonOptions));
+            Results.Json(await LoadSettingsAsync(ctx.RequestAborted), JsonOptions))
+            .RequireCovePermission("videos.read");
 
         endpoints.MapPut("/api/ext/better-scrapers/settings", async (HttpContext ctx) =>
         {
@@ -54,7 +56,7 @@ public sealed class BetterScrapersExtension : IExtension, IUIExtension, IStatefu
             if (_store is null) return Results.Problem("Extension storage is not initialized.");
             await _store.SetAsync(SettingsKey, JsonSerializer.Serialize(settings, JsonOptions), ctx.RequestAborted);
             return Results.Json(settings, JsonOptions);
-        });
+        }).RequireCovePermission("extensions.configure");
     }
 
     private async Task<BetterScrapersSettings> LoadSettingsAsync(CancellationToken ct)

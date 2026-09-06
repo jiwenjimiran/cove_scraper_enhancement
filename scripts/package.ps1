@@ -1,6 +1,6 @@
 param(
     [string]$Configuration = "Release",
-    [string]$Version = "1.3.0",
+    [string]$Version = "1.3.1",
     [switch]$NoRestore,
     [switch]$Install
 )
@@ -25,12 +25,12 @@ finally { Pop-Location }
 if (Test-Path -LiteralPath $publishDir) { Remove-Item -LiteralPath $publishDir -Recurse -Force }
 if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
 if (-not $NoRestore) {
-    dotnet restore $project -p:UseLocalCovePlugins=false
+    dotnet restore $project
     if ($LASTEXITCODE -ne 0) { throw "Extension restore failed with exit code $LASTEXITCODE." }
 }
-dotnet build $project -c $Configuration -p:UseLocalCovePlugins=false --no-restore
+dotnet build $project -c $Configuration --no-restore
 if ($LASTEXITCODE -ne 0) { throw "Extension build failed with exit code $LASTEXITCODE." }
-dotnet publish $project -c $Configuration -o $publishDir -p:UseLocalCovePlugins=false --no-build --no-restore
+dotnet publish $project -c $Configuration -o $publishDir --no-build --no-restore
 if ($LASTEXITCODE -ne 0) { throw "Extension publish failed with exit code $LASTEXITCODE." }
 Compress-Archive -Path (Join-Path $publishDir "*") -DestinationPath $zipPath -CompressionLevel Optimal
 

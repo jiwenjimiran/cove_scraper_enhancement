@@ -31,7 +31,7 @@ Configure the extension from Cove's **Extensions** settings tab. The controls ap
 
 ## Build
 
-Requirements: .NET 9 SDK, Node.js 20+, and PowerShell 7/Windows PowerShell.
+Requirements: .NET 10 SDK, Node.js 20+, and PowerShell 7/Windows PowerShell.
 
 ```powershell
 npm --prefix frontend install
@@ -41,7 +41,7 @@ dotnet build BetterScrapers.slnx -c Release
 .\scripts\package.ps1
 ```
 
-The package script creates `artifacts\io.github.jiwenjimiran.better-scrapers.zip`. Use `-Install` to also copy the extracted package into Cove's local extensions directory.
+The package script creates a versioned ZIP in `artifacts`, such as `artifacts\io.github.jiwenjimiran.better-scrapers-1.3.1.zip`. Use `-Install` to also copy the extracted package into Cove's local extensions directory.
 
 ## How it works
 
