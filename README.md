@@ -38,10 +38,11 @@ npm --prefix frontend install
 npm --prefix frontend test
 npm --prefix frontend run build
 dotnet build BetterScrapers.slnx -c Release
+dotnet run --project tests/BetterScrapers.SettingsChecks -c Release
 .\scripts\package.ps1
 ```
 
-The package script creates a versioned ZIP in `artifacts`, such as `artifacts\io.github.jiwenjimiran.better-scrapers-1.3.1.zip`. Use `-Install` to also copy the extracted package into Cove's local extensions directory.
+The package script creates a versioned ZIP in `artifacts`, such as `artifacts\io.github.jiwenjimiran.better-scrapers-1.3.2.zip`. Use `-Install` to also copy the extracted package into Cove's local extensions directory.
 
 ## How it works
 

@@ -17,7 +17,7 @@ public sealed class BetterScrapersExtension : IExtension, IUIExtension, IStatefu
 
     public string Id => ExtensionId;
     public string Name => "Better Scrapers";
-    public string Version => "1.3.1";
+    public string Version => "1.3.2";
     public string? Description => "Rate-limited Scrape All and one-click Save All controls for Cove's video tagger.";
     public string? Author => "jiwenji";
     public string? Url => "https://github.com/jiwenjimiran/cove_scraper_enhancement";
@@ -45,11 +45,11 @@ public sealed class BetterScrapersExtension : IExtension, IUIExtension, IStatefu
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/ext/better-scrapers/settings", async (HttpContext ctx) =>
+        endpoints.MapGet("/api/ext/better-scrapers/settings", async Task<IResult> (HttpContext ctx) =>
             Results.Json(await LoadSettingsAsync(ctx.RequestAborted), JsonOptions))
             .RequireCovePermission("videos.read");
 
-        endpoints.MapPut("/api/ext/better-scrapers/settings", async (HttpContext ctx) =>
+        endpoints.MapPut("/api/ext/better-scrapers/settings", async Task<IResult> (HttpContext ctx) =>
         {
             var incoming = await JsonSerializer.DeserializeAsync<BetterScrapersSettings>(ctx.Request.Body, JsonOptions, ctx.RequestAborted);
             var settings = BetterScrapersSettings.Normalize(incoming);

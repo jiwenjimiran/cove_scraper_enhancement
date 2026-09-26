@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.2 - 2026-09-26
+
+- Fix saved settings appearing to reset after refresh and scraping continuing to use default values: the settings endpoint now correctly returns stored settings.
+- Add HTTP regression checks for settings save/read round trips and error responses.
+
 ## 1.3.1 - 2026-09-06
 
 - Restore toolbar injection after Cove 1.3 wrapped the native Scrape All control in a strategy-menu container.

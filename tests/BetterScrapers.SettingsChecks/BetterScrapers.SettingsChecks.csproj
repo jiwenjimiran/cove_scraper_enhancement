@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <Compile Include="../../src/BetterScrapers/BetterScrapersExtension.cs" Link="BetterScrapersExtension.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseLocalCovePlugins)' == 'true'">
+    <ProjectReference Include="$(CoveSourceRoot)/src/Cove.Sdk/Cove.Sdk.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseLocalCovePlugins)' != 'true'">
+    <PackageReference Include="Cove.Sdk" Version="$(CovePluginsVersion)" />
+  </ItemGroup>
+</Project>
